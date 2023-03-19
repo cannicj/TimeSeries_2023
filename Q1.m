@@ -3,36 +3,20 @@ n = 50; % Sample size
 p = 3; % Number of regressors
 sim = 1e5; % Number of simulations
 X = [ones(n, 1), randn(n, p)]; % Design matrix
-beta0 = [0; zeros(p, 1)]; % True beta vector under null hypothesis
-beta1 = [1; ones(p, 1)]; % True beta vector under alternative hypothesis
+beta0 = [0;0;0;0]; % True beta vector under null hypothesis
+beta1 = [1;1;1;1]; % True beta vector under alternative hypothesis
 sigmas = [1, 2, 4]; % Residual variances
-%% 
 
+
+%%
 % Simulate for test one
 R2_test_one = zeros(sim, 3);
 F_test_one = zeros(sim, 3);
 for j = 1:length(sigmas)
     sigma = sigmas(j);
+    e = normrnd(0,sqrt(sigma),n,sim); % Residual vector
     for i = 1:sim
-        e = normrnd(0,sqrt(sigma),n,1); % Residual vector
-        y = X * beta0 + e; % Response vector
-        % OLS regression
-        [b, ~, r, ~, stats] = regress(y, X);
-        % R^2 and F statistics
-        R2_test_one(i, j) = stats(1);
-        F_test_one(i, j) = stats(2);
-    end
-end
-
-%% Simuation for test 1 by not using built in regression
-% Simulate for test one
-R2_test_one = zeros(sim, 3);
-F_test_one = zeros(sim, 3);
-for j = 1:length(sigmas)
-    sigma = sigmas(j);
-    for i = 1:sim
-        e = normrnd(0,sqrt(sigma),n,1); % Residual vector
-        y = X * beta0 + e; % Response vector
+        y = X*beta0 + e(:,i); % Response vector
         % OLS regression
         betaHat = inv((X' * X))*X'*y;
         yHat = X * betaHat;
@@ -41,13 +25,8 @@ for j = 1:length(sigmas)
         R2 = 1 - RSS/TSS; % save here for clearer use later on
         R2_test_one(i,j) = R2;
         F_test_one(i,j) = ((n-p+1)/p)*(R2/(1-R2));
-        %[b, ~, r, ~, stats] = regress(y, X);
-        % R^2 and F statistics
-        %R2_test_one(i, j) = stats(1);
-        %F_test_one(i, j) = stats(2);
     end
 end
-
 
 %%
 % Simulate for test two
@@ -55,27 +34,9 @@ R2_test_two = zeros(sim, 3);
 F_test_two = zeros(sim, 3);
 for j = 1:length(sigmas)
     sigma = sigmas(j);
+    e = normrnd(0,sqrt(sigma),n,sim); % Residual vector
     for i = 1:sim
-        e = normrnd(0,sqrt(sigma),n,1); % Residual vector
-        y = X * beta1 + e; % Response vector
-        % OLS regression
-        [b, ~, r, ~, stats] = regress(y, X);
-        % R^2 and F statistics
-        R2_test_two(i, j) = stats(1);
-        F_test_two(i, j) = stats(2);
-    end
-end
-
-
-%% Simuation for test 2 by not using built in regression
-% Simulate for test two
-R2_test_two = zeros(sim, 3);
-F_test_two = zeros(sim, 3);
-for j = 1:length(sigmas)
-    sigma = sigmas(j);
-    for i = 1:sim
-        e = normrnd(0,sqrt(sigma),n,1); % Residual vector
-        y = X * beta1 + e; % Response vector
+        y = X*beta1 + e(:,i); % Response vector
         % OLS regression
         betaHat = inv((X' * X))*X'*y;
         yHat = X * betaHat;
@@ -84,10 +45,6 @@ for j = 1:length(sigmas)
         R2 = 1 - RSS/TSS; % save here for clearer use later on
         R2_test_two(i,j) = R2;
         F_test_two(i,j) = ((n-p+1)/p)*(R2/(1-R2));
-        %[b, ~, r, ~, stats] = regress(y, X);
-        % R^2 and F statistics
-        %R2_test_two(i, j) = stats(1);
-        %F_test_two(i, j) = stats(2);
     end
 end
 
@@ -118,8 +75,8 @@ for s=1:3
  for c=1:2
      figure
      %hold on
-     x = linspace(0,1,1000);
      if c==1
+         x = linspace(0,1,1000);
          for s=1:3
              hold on
              yR2 = ksdensity(R2_test_two(:,s),x);
@@ -132,6 +89,7 @@ for s=1:3
          title('Simulated R-squared distributions')
          legend(['\sigma^2 = ' num2str(sigmas(1))],['\sigma^2 = ' num2str(sigmas(2))],['\sigma^2 = ' num2str(sigmas(3))], 'Location','NorthWest')
      else
+         x = linspace(0,100,1000);
          for s=1:3
              hold on
              yF = ksdensity(F_test_two(:,s),x);
