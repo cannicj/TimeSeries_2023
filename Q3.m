@@ -120,13 +120,13 @@ figure
 boxplot(a_accuracy_T20, 'Labels', string(a_values))
 xlabel('a')
 ylabel('Difference to true a')
-title('Boxplots of the distance to true a-values for different a')
+title('Distance to true a-values for different a, T=20')
 
 figure
 boxplot(a_accuracy_T50, 'Labels', string(a_values))
 xlabel('a')
 ylabel('Difference to true a')
-title('Boxplots of the distance to true a-values for different a')
+title('Distance to true a-values for different a, T=50')
 mean(beta_accuracy_T20)
 mean(beta_accuracy_T50)
 
