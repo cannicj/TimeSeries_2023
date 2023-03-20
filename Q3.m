@@ -11,9 +11,9 @@ sigmas = 1; % Residual variances
 tol = 1e-5;
 a_values = [0, 0.2, 0.4, 0.6, 0.8, 0.99]; % results should get worse with increasing true a
 
+
 %% Tests for just one value
 % simulation
-
 e = zeros(samp_sizes(1)+1,1); % initial vector for regression error terms
 U = normrnd(0,sqrt(sigmas),samp_sizes(1)+1,1); % Residual vector of the AR(1) process
 e(1) = U(1);
@@ -32,19 +32,28 @@ resid_t = resid(2:end); % vector of length T
 resid_tminus1 = resid(1:end-1); % vector of length T
 aHat = (resid_tminus1' * resid_t)/(resid_tminus1' * resid_tminus1); %estimate aHat
 aHatnew=0;
+betaHatnew = [0, 0, 0, 0, 0];
+counter = 0;
 
 % algorithm until convergence from book page 225
-while abs(aHatnew - aHat) > tol
+while abs(aHatnew - aHat) > tol | any(abs(betaHatnew - betaHat) > tol) 
+    counter = counter + 1;
     aHat = aHatnew;
+    betaHat = betaHatnew;
     a_mat = (1/(1-aHat^2))*(toeplitz([aHat.^(0:samp_sizes(1))])); %formula 4.2
-    betaHat = inv(X'*inv(a_mat)*X)*X'*inv(a_mat)*y; %gls
-    yHat = X * betaHat;
+    betaHatnew = inv(X'*inv(a_mat)*X)*X'*inv(a_mat)*y; %gls
+    yHat = X * betaHatnew;
     resid = y - yHat;
     % calculate a_hat based on resid
     resid_t = resid(2:end); %vector of length T
     resid_tminus1 = resid(1:end-1); %vector of length T
     aHatnew = (resid_tminus1' * resid_t)/(resid_tminus1' * resid_tminus1); %estimate a hat
-    a_Hatnew
+    if abs(aHatnew - aHat) < tol
+        disp(["a converges after: " num2str(counter) "runs"])
+    end
+    if all(abs(betaHatnew - betaHat) < tol)
+        disp(["the betas converge after: " num2str(counter) "runs"])
+    end
 end
 
 %% now connect everything with all parameters and save results for beta and a
@@ -71,13 +80,15 @@ for t=1:length(samp_sizes)
             resid_tminus1 = resid(1:end-1); % vector of length T
             aHat = (resid_tminus1' * resid_t)/(resid_tminus1' * resid_tminus1); %estimate aHat
             aHatnew=0;
+            betaHatnew = [0, 0, 0, 0, 0];
 
             % algorithm until convergence from book page 225
-            while abs(aHatnew - aHat) > tol
+            while abs(aHatnew - aHat) > tol | any(abs(betaHatnew - betaHat) > tol)
                 aHat = aHatnew;
+                betaHat = betaHatnew;
                 a_mat = (1/(1-aHat^2))*(toeplitz([aHat.^(0:samp_sizes(t))])); %formula 4.2
-                betaHat = inv(X'*inv(a_mat)*X)*X'*inv(a_mat)*y; %gls
-                yHat = X * betaHat;
+                betaHatnew = inv(X'*inv(a_mat)*X)*X'*inv(a_mat)*y; %gls
+                yHat = X * betaHatnew;
                 resid = y - yHat;
                 % calculate a_hat based on resid
                 resid_t = resid(2:end); %vector of length T
