@@ -19,7 +19,7 @@ U = normrnd(0,sqrt(sigmas),samp_sizes(1)+1,1); % Residual vector of the AR(1) pr
 e(1) = U(1);
 %create AR(1) process for the error terms
 for i=2:(samp_sizes(1)+1)
-    e(i) = a_values(2)*e(i-1) + U(i);
+    e(i) = a_values(6)*e(i-1) + U(i);
 end
 y = X * beta0 + e; % get response vector
 
@@ -68,7 +68,7 @@ for t=1:length(samp_sizes)
             e(1) = U(1);
             %create AR(1) process for the error terms
             for i=2:(samp_sizes(1)+1)
-                e(i) = a_values(2)*e(i-1) + U(i);
+                e(i) = a_values(a)*e(i-1) + U(i);
             end
             y = X * beta0 + e; % get response vector
             % estimate the parameters
@@ -116,6 +116,7 @@ a_accuracy_T50 = a_accuracy_T50{:,:};
 beta_accuracy_T20 = beta_accuracy_T20{:,:};
 beta_accuracy_T50 = beta_accuracy_T50{:,:};
 %%
+
 figure
 boxplot(a_accuracy_T20, 'Labels', string(a_values))
 xlabel('a')
@@ -127,6 +128,13 @@ boxplot(a_accuracy_T50, 'Labels', string(a_values))
 xlabel('a')
 ylabel('Difference to true a')
 title('Distance to true a-values for different a, T=50')
+
 mean(beta_accuracy_T20)
 mean(beta_accuracy_T50)
+
+
+
+
+%% visualization and tables
+mean(median(a_accuracy_T50)-median(a_accuracy_T20))
 
