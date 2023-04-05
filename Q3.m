@@ -87,7 +87,7 @@ for t=1:length(samp_sizes)
                 aHat = aHatnew;
                 betaHat = betaHatnew;
                 a_mat = (1/(1-aHat^2))*(toeplitz([aHat.^(0:samp_sizes(t))])); %formula 4.2
-                betaHatnew = inv(X'*inv(a_mat)*X)*X'*inv(a_mat)*y; %gls
+                betaHatnew = inv(X'*inv(a_mat)*X)*X'*inv(a_mat)*yHat; %gls
                 yHat = X * betaHatnew;
                 resid = y - yHat;
                 % calculate a_hat based on resid
@@ -118,15 +118,27 @@ beta_accuracy_T50 = beta_accuracy_T50{:,:};
 %%
 
 figure
+boxplot(beta_accuracy_T20, 'Labels', string(a_values))
+xlabel('a')
+ylabel('Mean distance to true \beta')
+title('Mean distance to true \beta values for different a, T=20')
+
+figure
+boxplot(beta_accuracy_T50, 'Labels', string(a_values))
+xlabel('a')
+ylabel('Mean distance to true \beta')
+title('Mean distance to true \beta values for different a, T=50')
+
+figure
 boxplot(a_accuracy_T20, 'Labels', string(a_values))
 xlabel('a')
-ylabel('Difference to true a')
+ylabel('Distance to true a')
 title('Distance to true a-values for different a, T=20')
 
 figure
 boxplot(a_accuracy_T50, 'Labels', string(a_values))
 xlabel('a')
-ylabel('Difference to true a')
+ylabel('Distance to true a')
 title('Distance to true a-values for different a, T=50')
 
 mean(beta_accuracy_T20)
