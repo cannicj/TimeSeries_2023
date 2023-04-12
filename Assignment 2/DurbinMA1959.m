@@ -35,7 +35,7 @@ if q == 1
         b_num(i) = a(i)*a(i+1);
     end
     b_num_sum = sum(b_num);
-    b_denom = sum(a^2);
+    b_denom = sum(a.^2);
     b = - b_num_sum/b_denom;
 else
     % estimation of MA(q): equation 15
