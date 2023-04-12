@@ -20,25 +20,36 @@
 % easy to simulate an MA model, and I have codes in my book) to make nice 
 % performance *graphics* (not tables).
 
-function [param, stderr, resid] = DurbinMA1959(y,q)
+function b = DurbinMA1959(y,q)
 if length(y) <= q
-    disp("q has to be smaller than number of observations!")
-    return
+    error("q has to be smaller than number of observations!")
 end
-k = 10;
-if q = 1
+% first, estimate a by OLS, see program 6.3
+k = round(sqrt(length(y)));
+[~, a] = yw(y,k); %get the a vector
+a = [1; a];
+if q == 1
     % estimation of MA(1): equation 7
-    % first, estimate a by OLS, see chapter 4.3.1
-    y_t = y(2:end); % vector of length T
-    y_tminus1 = y(1:end-1); % vector of length T
-    a = (y_tminus1' * y_t)/(y_tminus1' * y_tminus1); %get a
+    b_num=zeros(k, 1);
     for i=1:(length(a)-1)
         b_num(i) = a(i)*a(i+1);
     end
     b_num_sum = sum(b_num);
     b_denom = sum(a^2);
-    b_estimate = - b_num_sum/b_denom;
+    b = - b_num_sum/b_denom;
 else
     % estimation of MA(q): equation 15
-    
+    LHS = zeros(k, k);
+    RHS = zeros(k, 1);
+    for i = 1:k
+        for j = 1:k
+            if i <= j
+                LHS(i,j) = a(1:(end-j+1))' * a(j:end);
+            else
+                LHS(i,j) = LHS(j,i);
+            end
+        end
+        RHS(i) = a(1:(end-i))' * a(i+1:end);
+    end
+    b = LHS \ (-RHS);
 end
