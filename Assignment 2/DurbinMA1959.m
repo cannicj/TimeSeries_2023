@@ -26,8 +26,8 @@ if length(y) <= q
 end
 % first, estimate a by OLS, see program 6.3
 k = round(sqrt(length(y)));
-[~, a] = yw(y,k); %get the a vector
-a = [1; a];
+[~, b] = yw(y,k); %get the a vector
+a = [1; -b];
 if q == 1
     % estimation of MA(1): equation 7
     b_num=zeros(k, 1);
