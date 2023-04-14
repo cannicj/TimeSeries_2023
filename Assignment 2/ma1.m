@@ -1,6 +1,6 @@
 function [param, stderr, resid]=ma1(y,exact)
 ylen=length(y); y=reshape(y,ylen,1); initvec=[0 std(y)]';
-opt=optimset('Display','iter','TolX',1e-3,'MaxIter',100,'LargeScale','off');
+opt=optimset('Display','off','TolX',1e-3,'MaxIter',100,'LargeScale','off');
 if exact==1, [param,loglik,exitflag]=fminunc(@exactma1_,initvec,opt,y);
 else         [param,loglik,exitflag]=fminunc(@condma1_,initvec,opt,y);
 end
