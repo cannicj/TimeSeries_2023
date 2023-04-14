@@ -24,32 +24,31 @@ function b = DurbinMA1959(y,q)
 if length(y) <= q
     error("q has to be smaller than number of observations!")
 end
+
 % first, estimate a by OLS, see program 6.3
 k = round(sqrt(length(y)));
 [~, b] = yw(y,k); %get the a vector
 a = [1; -b];
+
 if q == 1
     % estimation of MA(1): equation 7
-    b_num=zeros(k, 1);
-    for i=1:(length(a)-1)
-        b_num(i) = a(i)*a(i+1);
-    end
-    b_num_sum = sum(b_num);
-    b_denom = sum(a.^2);
-    b = - b_num_sum/b_denom;
+    num = a(1:(end-1))' * a(2:end);
+    denom = sum(a.^2);
+    b = - num / denom;
+
 else
-    % estimation of MA(q): equation 15
-    LHS = zeros(k, k);
-    RHS = zeros(k, 1);
-    for i = 1:k
-        for j = 1:k
-            if i <= j
-                LHS(i,j) = a(1:(end-j+1))' * a(j:end);
-            else
-                LHS(i,j) = LHS(j,i);
-            end
-        end
-        RHS(i) = a(1:(end-i))' * a(i+1:end);
+    LHS = zeros(q, q);
+    RHS = zeros(q, 1);
+    List = zeros(1,q);
+    for j = 1:q
+        List(1,j) = a(1:(end-j+1))' * a(j:end);
+    end
+    %Generate LHS and RHS
+    for u=1:q
+        LHS(u,:)=circshift(List,[0,u-1]);
+        LHS = triu(LHS);
+        LHS = LHS + tril(LHS',-1);
+        RHS(u) = a(1:(end-u))' * a(u+1:end);
     end
     b = LHS \ (-RHS);
 end
