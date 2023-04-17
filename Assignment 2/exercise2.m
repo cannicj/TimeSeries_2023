@@ -3,7 +3,7 @@
 a = [0.2, -0.3, 0.5]; % AR coefficients
 b = [0.4, -0.6]; % MA coefficients
 sigma = 1; % noise standard deviation
-T = 100; % length of time series, need 100 and 1000
+T = 10; % length of time series, need 100 and 1000
 rep = 1e4;
 
 % Generate ARMA(3,2) data
@@ -40,7 +40,7 @@ qvecAIC=zeros(rep,1);
 qvecBIC=zeros(rep,1);
 for q = 1:qmax
     %estimate MA(q) with sigma
-    ma_est = ;
+    %ma_est = ;
     lsig2=log(ma_est(end)^2);
     z=q; AIC=lsig2+(2*z)/T; BIC=lsig2 + z*log(T)/T;
     if AIC<AICmin, AICmin=AIC; qvecAIC(i)=q; end

@@ -26,7 +26,7 @@ end
 
 function [loglik,uvec]=condma1_(param,y)
 ylen=length(y); uvec=zeros(ylen,1); pastu=0;
-b=param(1); sig=abs(param(2)); % this is NOT sigmaˆ2, but just (little) sigma.
+b=param(1); sig=abs(param(2)); % this is NOT sigma^2, but just (little) sigma.
 if abs(b)>1, b=1/b; sig=sig/abs(b); end
 for t=1:ylen, u=y(t)-b*pastu; uvec(t)=u; pastu=u; end
 ll = - ylen * log(sig) - sum(uvec.^2)/(2*sig.^2); loglik = -ll;
