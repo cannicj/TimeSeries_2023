@@ -1,8 +1,17 @@
-function [param]=maq(y,exact,q)
-ylen=length(y); y=reshape(y,ylen,1); initvec=[zeros(1,q) std(y)]';
-opt=optimset('Display','off','TolX',1e-3,'MaxIter',100,'LargeScale','off');
-if exact==1, [param,loglik,exitflag]=fminunc(@exactmaq_,initvec,opt,y);
-else         [param,loglik,exitflag]=fminunc(@condmaq,initvec,opt,y); end
+%function [param, loglik]=maq(y,exact,q)
+%ylen=length(y); y=reshape(y,ylen,1); initvec=[zeros(1,q) std(y)]';
+%opt=optimset('Display','off','TolX',1e-3,'MaxIter',100,'LargeScale','off');
+%if exact==1, [param,loglik]=fminunc(@exactmaq_,initvec,opt,y);
+%else         [param,loglik]=fminunc(@condmaq,initvec,opt,y); end
+%end
+function [param, loglik] = maq(y, exact, q)
+ylen = length(y); y = reshape(y,ylen,1);initvec=[zeros(1,q) std(y)]';
+opt = optimoptions(@fmincon, 'Display', 'off', 'OptimalityTolerance', 1e-3, ...
+    'MaxIterations', 100, 'Algorithm', 'interior-point', 'HessianApproximation', 'bfgs');
+lb = [-inf(1, q), 0];
+ub = [inf(1, q), inf];
+if exact == 1, [param, loglik] = fmincon(@exactmaq_, initvec, [], [], [], [], lb, ub, [], opt, y);
+else           [param, loglik] = fmincon(@condmaq, initvec, [], [], [], [], lb, ub, [], opt, y); end
 end
 
 function loglik=exactmaq_(param,y)
@@ -23,6 +32,11 @@ for t=1:ylen
     u=y(t);
     u=u-sum(uroll.*b); uroll=[u ; uroll(1:q-1)];
     uvec(t)=u;
+end
+% Check for NaN or Inf values in uvec
+if any(isnan(uvec)) || any(isinf(uvec))
+    loglik = 1e10; % return a large negative log-likelihood value
+    return
 end
 ll = - ylen * log(sig) - sum(uvec.^2)/(2*sig.^2);loglik = -ll;
 end

@@ -1,7 +1,7 @@
 % Exercise 1) Part 3: Creating Confidence Intervals based on 
 % the method of single parametric bootstrap
 % initialize parameters
-true_b = .2; sig=1; T=1000; sim=100;
+true_b = .2; sig=1; T=1000; sim=200;
 B = 400;
 b1=zeros(sim); b2=b1; b3=b1;
 Mdl = arima(0,0,1);
@@ -54,6 +54,7 @@ for i=1:sim %loop to get average CI coverage
     bool_matlab(i)=(true_b>ci_matlab(1)) & (true_b<ci_matlab(2));
 end
 %%
+% data for the table
 disp(["Actual coverage matlab method:", num2str(mean(bool_matlab))])
 disp(["Actual coverage MLE method:", num2str(mean(bool_MLE))])
 disp(["Actual coverage Durbin method:", num2str(mean(bool_Durbin))])
@@ -61,71 +62,43 @@ disp(["Actual coverage Durbin method:", num2str(mean(bool_Durbin))])
 disp(["CI Length matlab method:", num2str(mean(length_matlab))])
 disp(["CI Length MLE method:", num2str(mean(length_MLE))])
 disp(["CI Length Durbin method:", num2str(mean(length_Durbin))])
+%%
+% plot
+plot(sort(length_matlab), 'r', 'LineWidth', 2);
+hold on;
+plot(sort(length_MLE), 'g', 'LineWidth', 2);
+plot(sort(length_Durbin), 'b', 'LineWidth', 2);
+
+% Add legend and title
+legend('Matlab', 'MLE', 'Durbin');
+title('CI lengths (sorted)');
 
 %%
-% calculate the mean of it to get 
+% Compute the density and mean for each data vector
+[f1, xi1] = ksdensity(length_matlab);
+mean1 = mean(length_matlab);
+[f2, xi2] = ksdensity(length_MLE);
+mean2 = mean(length_MLE);
+[f3, xi3] = ksdensity(length_Durbin);
+mean3 = mean(length_Durbin);
+
+% Create the plot with the density lines and vertical mean lines
+hold on;
+plot(xi1, f1, 'r', 'LineWidth', 2);
+line([mean1 mean1], [0 max(f1)], 'Color', 'r', 'LineStyle', '--');
+plot(xi2, f2, 'g', 'LineWidth', 2);
+line([mean2 mean2], [0 max(f2)], 'Color', 'g', 'LineStyle', '--');
+plot(xi3, f3, 'b', 'LineWidth', 2);
+line([mean3 mean3], [0 max(f3)], 'Color', 'b', 'LineStyle', '--');
+hold off;
+
+% Add labels and title
+xlabel('Value');
+ylabel('Density');
+title('Density Plot of CI Lengths');
+
+% Add legend
+legend('Matlab','mean matlab', 'MLE','mean MLE', 'Durbin','mean Durbin');
 
 
 
-
-n=20; p=0.3; B=1e4; alpha =0.05; sim=1e5; bool=zeros(sim, 1);
-for i = 1:sim
-    phat0 = binornd(n, p, [1, 1])/n; % the estimate of p from Bin(n, p) data
-    phatvec = binornd(n, phat0, [B, 1])/n; % B samples of S/n , S~Bin(n, phat0)
-    ci = quantile(phatvec, [alpha/2 1-alpha/2]); low = ci(1); high = ci(2);
-    bool(i) = (p>low) & (p<high) ; % is the true p in the interval?
-end
-actualcoverage = mean(bool)
-
-%% aaron codes haha
-% prep work
-b_true = -.5; % freely assumed
-T=100;
-n_obs = T;% + p;
-B = 400; % check if can be smaller or should be larger for reliable results
-alpha = .1;
-
-% initialize variables
-vec_timeseries_Durbin = zeros(n_obs, B);
-vec_timeseries_approxMLE = zeros(n_obs, B);
-vec_timeseries_matlab = zeros(n_obs, B);
-boot_MA1est_Durbin = zeros(B, 1);
-boot_MA1est_approxMLE = zeros(B, 1);
-boot_MA1est_matlab = zeros(B, 1);
-
-% simulate MA(1) process and then estimate the parameter
-% % for reproducibility
-rng(42); seed = rng;
-
-% % simulate MA(1) process with true parameter
-timeseries = armasim(n_obs, 1, 0, b_true);
-
-% % estimate MA parameter using the three methods
-% %% Durbin
-MA1est_Durbin = DurbinMA1959(timeseries, 1);
-% %% approx MLE
-MA1_temp = ma1(timeseries, 0); % 0 for approx MLE
-MA1est_approxMLE = MA1_temp(1);
-% %% matlab
-MA1_temp = armax(timeseries, [0, 1]);
-MA1est_matlab = MA1_temp.c(2:end);
-
-for i = 1:B
-    rng(seed.Seed + i);
-    % simulation of MA process with ESTIMATED b
-    vec_timeseries_Durbin(:,i) = armasim(n_obs, 1, 0, MA1est_Durbin);
-    vec_timeseries_approxMLE(:,i) = armasim(n_obs, 1, 0, MA1est_approxMLE);
-    vec_timeseries_matlab(:,i) = armasim(n_obs, 1, 0, MA1est_matlab);
-
-    % estimation of bootstrapped timeseries
-    boot_MA1est_Durbin(i) = DurbinMA1959(vec_timeseries_Durbin(:,i), 1);
-    MA1_temp = ma1(vec_timeseries_approxMLE(:,i), 0);
-    boot_MA1est_approxMLE(i) = MA1_temp(1);
-    MA1_temp = armax(vec_timeseries_matlab(:,i), [0, 1]);
-    boot_MA1est_matlab(i) = MA1_temp.c(2:end);
-end
-
-% calculate CI
-ci_Durbin = quantile(boot_MA1est_Durbin, [alpha/2 1-alpha/2]);
-ci_approxMLE = quantile(boot_MA1est_approxMLE, [alpha/2 1-alpha/2]);
-ci_matlab = quantile(boot_MA1est_matlab, [alpha/2 1-alpha/2]);

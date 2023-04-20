@@ -1,10 +1,10 @@
-function [MLE, stderr]=exactarp(y,p)
+function [MLE, loglik, stderr]=exactarp(y,p)
 n=length(y); y=reshape(y,n,1); initvec=[yw(y,p); std(y)];
 tol=1e-5; maxiter=200; show='none'; % 'iter','notify', or 'final'.
 options = optimset('Display',show,'TolX',tol,'Tolfun',tol, ...
     'MaxIter',maxiter,'LargeScale','off');
 [MLE,loglik,exitflag]=fminunc(@exactarp_,initvec,options,y,p);
-if nargout>1
+if nargout>2
     H = -hessian(@exactarp_,MLE,y,p);
     stderr=real(sqrt(diag(inv(H))));
 end
