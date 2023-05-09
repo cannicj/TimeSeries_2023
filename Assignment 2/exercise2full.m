@@ -1,10 +1,10 @@
 % exercise 2, loop for results
 %% Define ARMA(3,2) model parameters
-a = [0.5, -0.2, -0.3]'; % AR coefficients
-b = [0.7, -0.2]; % MA coefficients
+a = [0.4, -0.5, -0.2]'; % AR coefficients
+b = [-0.5, -0.24]; % MA coefficients
 sigma = 1; % noise standard deviation
 Tvec = [100 1000]; % length of time series, need 100 and 1000
-rep = 100;
+rep = 10000;
 pmax = 10;
 qmax = 10;
 pvecAIC=zeros(rep,2);
@@ -34,7 +34,7 @@ for t=1:length(Tvec)
             %[ma_est, logL] = maq(Y, 2, q);
             ma_est = DurbinMA1959(Y,q);
             logL = condmaq([ma_est' 1]', Y);
-            AIC=2*(q+1) - 2*logL; BIC = log(T)*(q+1)-2*logL;
+            AIC=2*q - 2*(-logL); BIC = log(T)*q-2*(-logL);
             if AIC<AICminMA, AICminMA=AIC; qvecAIC(i,t)=q; end
             if BIC<BICminMA, BICminMA=BIC; qvecBIC(i,t)=q; end
         end

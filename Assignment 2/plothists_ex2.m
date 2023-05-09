@@ -1,14 +1,14 @@
-pAIC100 = pvecAIC10000(:,1);
-pAIC1000 = pvecAIC10000(:,2);
-pBIC100 = pvecBIC10000(:,1);
-pBIC1000 = pvecBIC10000(:,2);
-qAIC100 = qvecAIC10000(:,1);
-qAIC1000 = qvecAIC10000(:,2);
-qBIC100 = qvecBIC10000(:,1);
-qBIC1000 = qvecBIC10000(:,2);
+pAIC100 = pvecAIC(:,1);
+pAIC1000 = pvecAIC(:,2);
+pBIC100 = pvecBIC(:,1);
+pBIC1000 = pvecBIC(:,2);
+qAIC100 = qvecAIC(:,1);
+qAIC1000 = qvecAIC(:,2);
+qBIC100 = qvecBIC(:,1);
+qBIC1000 = qvecBIC(:,2);
 %%
-est_matrix_p = [pvecAIC10000 pvecBIC10000]; % real model order is 3
-est_matrix_q = [qvecAIC10000 qvecBIC10000]; % real model order is 2
+est_matrix_p = [pvecAIC pvecBIC]; % real model order is 3
+est_matrix_q = [qvecAIC qvecBIC]; % real model order is 2
 occurances_p = zeros(4,10);
 occurances_q = zeros(4,10);
 for i=1:4
@@ -20,8 +20,8 @@ for i=1:4
     end
 end
 %%
-occurances_p/10000
-occurances_q/10000
+occurances_p'/10000
+occurances_q'/10000
 %%
 
 tabulate(est_matrix_p(:,1))
