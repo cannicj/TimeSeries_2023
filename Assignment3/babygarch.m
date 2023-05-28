@@ -2,7 +2,7 @@ function [param,stderr,loglik,zvec] = babygarch(y)
 % normal-GARCH(1,1) with power=2. y is vector of log percentage returns
 initvec= [0.04 0.05 0.8 10]; % c_0 c_1 d_1 dof
 bound.lo =    [0   0 0 0];
-bound.hi =    [0.5 1 1 200];
+bound.hi =    [0.5 1 1 500];
 bound.which = [1   1 1 1];
 opt=optimset('Display','None', 'Maxiter',500, 'TolFun',1e-6, ...
     'TolX',1e-6,'LargeScale','off');

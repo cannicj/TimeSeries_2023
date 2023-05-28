@@ -30,9 +30,27 @@ end
 %%
 figure;
 plot(y, 'LineWidth', 1.5);
-%xlabel('Time');
-%ylabel('Conditional Volatility');
-%title('Simulated GARCH(1,1) Process');
+xlabel('Time');
+ylabel('Conditional Volatility');
+title('Simulated GARCH(1,1) Process');
+%%
+% Plotting
+figure;
+
+% Subplot 1 for y
+subplot(1, 2, 1);
+plot(y, 'b', 'LineWidth', 2);
+xlabel('Index');
+ylabel('realizations');
+title('log-returns');
+
+% Subplot 2 for sigma2
+subplot(1, 2, 2);
+plot(sigma2, 'r', 'LineWidth', 2);
+xlabel('Index');
+ylabel('\sigma^2');
+title('Conditional Variances');
+
 
 %% 
 % parameter estimation with student-t-garch model
